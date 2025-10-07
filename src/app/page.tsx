@@ -43,7 +43,7 @@ export default function Home() {
         </div>
 
         {/* Header */}
-        <div className="text-center mb-9 relative z-10">
+        <div className="text-center mb-3 relative z-10">
           <h1 className="text-5xl md:text-6xl font-bold text-transparent bg-clip-text mb-4" style={{ backgroundImage: 'linear-gradient(45deg, #E94057, #F27121)', WebkitBackgroundClip: 'text', backgroundClip: 'text' }}>
             İhlas Zikir
           </h1>
