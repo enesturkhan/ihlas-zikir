@@ -64,7 +64,7 @@ export default function Statistics({ count, initialCount }: StatisticsProps) {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-8 left-8 p-3 rounded-full font-medium transition-all duration-300 backdrop-blur-sm shadow-lg hover:scale-105 active:scale-95 z-20"
+        className="fixed top-8 md:bottom-8 md:top-auto left-8 p-3 rounded-full font-medium transition-all duration-300 backdrop-blur-sm shadow-lg hover:scale-105 active:scale-95 z-20"
         style={{
           backgroundColor: 'rgba(18, 18, 18, 0.8)',
           border: '1px solid rgba(234, 234, 234, 0.2)',
@@ -107,7 +107,7 @@ export default function Statistics({ count, initialCount }: StatisticsProps) {
       />
       
       {/* Panel */}
-      <div className="fixed bottom-8 left-8 backdrop-blur-md rounded-2xl p-6 shadow-2xl z-20 w-72" style={{
+      <div className="fixed top-8 md:bottom-8 md:top-auto left-8 backdrop-blur-md rounded-2xl p-6 shadow-2xl z-20 w-72" style={{
         background: 'rgba(18, 18, 18, 0.95)',
         border: '1px solid rgba(234, 234, 234, 0.2)'
       }}>
