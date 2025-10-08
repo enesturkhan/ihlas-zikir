@@ -1,49 +1,41 @@
+// cSpell:ignore firestore
 'use client';
 
 import { useState, useEffect } from 'react';
 import CountdownCounter from '@/components/CountdownCounter';
 import ResetModal from '@/components/ResetModal';
 import Statistics from '@/components/Statistics';
+import { db } from '@/lib/firebase';
+import { doc, setDoc, onSnapshot } from 'firebase/firestore';
 
 const INITIAL_COUNT = 40000;
-const STORAGE_KEY = 'ihlas-zikir-count';
+const COUNTER_DOC_ID = 'global-counter';
 
 export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentCount, setCurrentCount] = useState(INITIAL_COUNT);
 
-  // Load count from localStorage on mount (client-side only)
+  // Sync with Firestore
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      const count = parseInt(stored, 10);
-      if (!isNaN(count)) {
-        setCurrentCount(count);
+    const counterRef = doc(db, 'counters', COUNTER_DOC_ID);
+    
+    const unsubscribe = onSnapshot(counterRef, (doc) => {
+      if (doc.exists()) {
+        setCurrentCount(doc.data().count);
       }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const handleReset = async () => {
+    try {
+      const counterRef = doc(db, 'counters', COUNTER_DOC_ID);
+      await setDoc(counterRef, { count: INITIAL_COUNT });
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error('Error resetting counter:', error);
     }
-  }, []);
-
-  // Listen for storage changes from CountdownCounter
-  useEffect(() => {
-    const handleStorageChange = () => {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const count = parseInt(stored, 10);
-        if (!isNaN(count)) {
-          setCurrentCount(count);
-        }
-      }
-    };
-
-    // Poll localStorage every second to sync with CountdownCounter
-    const interval = setInterval(handleStorageChange, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const handleReset = () => {
-    localStorage.setItem(STORAGE_KEY, INITIAL_COUNT.toString());
-    setIsModalOpen(false);
-    window.location.reload();
   };
 
   const progress = INITIAL_COUNT - currentCount;

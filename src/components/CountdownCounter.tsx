@@ -1,6 +1,9 @@
+// cSpell:ignore firestore
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { db } from '@/lib/firebase';
+import { doc, getDoc, setDoc, onSnapshot, updateDoc, increment } from 'firebase/firestore';
 
 interface CountdownCounterProps {
   onHover: (hovering: boolean) => void;
@@ -8,32 +11,46 @@ interface CountdownCounterProps {
 }
 
 const INITIAL_COUNT = 40000;
-const STORAGE_KEY = 'ihlas-zikir-count';
+const COUNTER_DOC_ID = 'global-counter';
 
 export default function CountdownCounter({ onHover, onClick }: CountdownCounterProps) {
   const [count, setCount] = useState<number>(INITIAL_COUNT);
   const [isAnimating, setIsAnimating] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Load from localStorage on mount
+  // Initialize and sync with Firestore
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      const parsedCount = parseInt(stored, 10);
-      if (!isNaN(parsedCount)) {
-        setCount(parsedCount);
+    const counterRef = doc(db, 'counters', COUNTER_DOC_ID);
+
+    // Initialize counter if it doesn't exist
+    const initializeCounter = async () => {
+      try {
+        const docSnap = await getDoc(counterRef);
+        if (!docSnap.exists()) {
+          await setDoc(counterRef, { count: INITIAL_COUNT });
+        }
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Error initializing counter:', error);
+        setIsLoading(false);
       }
-    }
+    };
+
+    initializeCounter();
+
+    // Real-time sync
+    const unsubscribe = onSnapshot(counterRef, (doc) => {
+      if (doc.exists()) {
+        setCount(doc.data().count);
+      }
+    });
+
+    return () => unsubscribe();
   }, []);
 
-  // Save to localStorage whenever count changes
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, count.toString());
-  }, [count]);
-
-  const handleClick = useCallback(() => {
-    if (count > 0) {
-      setCount((prev) => prev - 1);
+  const handleClick = useCallback(async () => {
+    if (count > 0 && !isLoading) {
       setIsAnimating(true);
       onClick();
 
@@ -42,18 +59,27 @@ export default function CountdownCounter({ onHover, onClick }: CountdownCounterP
         navigator.vibrate(10);
       }
 
-      // Check if completed
-      if (count - 1 === 0) {
-        setShowConfetti(true);
-        // Celebration vibration
-        if ('vibrate' in navigator) {
-          navigator.vibrate([100, 50, 100, 50, 200]);
+      try {
+        const counterRef = doc(db, 'counters', COUNTER_DOC_ID);
+        await updateDoc(counterRef, {
+          count: increment(-1)
+        });
+
+        // Check if completed
+        if (count - 1 === 0) {
+          setShowConfetti(true);
+          // Celebration vibration
+          if ('vibrate' in navigator) {
+            navigator.vibrate([100, 50, 100, 50, 200]);
+          }
         }
+      } catch (error) {
+        console.error('Error updating counter:', error);
       }
 
       setTimeout(() => setIsAnimating(false), 300);
     }
-  }, [count, onClick]);
+  }, [count, onClick, isLoading]);
 
   // Keyboard support (spacebar)
   useEffect(() => {
