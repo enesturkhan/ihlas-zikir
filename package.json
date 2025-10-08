@@ -5,7 +5,7 @@
   "description": "40K İhlas Zikir Geri Sayım Sayacı",
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build --turbopack",
+    "build": "next build",
     "start": "next start",
     "lint": "eslint"
   },
