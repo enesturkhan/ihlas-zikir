@@ -7,12 +7,12 @@ import { getAnalytics } from 'firebase/analytics';
 // Firebase yapılandırma bilgileri
 // Bu bilgileri Firebase Console'dan alabilirsiniz
 const firebaseConfig = {
-    apiKey : "AIzaSyCBWpWwYpqin5by3fiyp5k8QnYFd3GmL_M" , 
-    authDomain : "ihlas-zikir.firebaseapp.com" , 
-    projectId : "ihlas-zikir" , 
-    storageBucket : "ihlas-zikir.firebasestorage.app" , 
-    mesajlaşmaGönderenKimliği : "1083295983369" , 
-    uygulama kimliği : "1:1083295983369:web:60e7056f2e68c28f5695d8" 
+    apiKey: "AIzaSyCBWpWwYpqin5by3fiyp5k8QnYFd3GmL_M",
+    authDomain: "ihlas-zikir.firebaseapp.com",
+    projectId: "ihlas-zikir",
+    storageBucket: "ihlas-zikir.firebasestorage.app",
+    messagingSenderId: "1083295983369",
+    appId: "1:1083295983369:web:60e7056f2e68c28f5695d8"
 };
 
 // Firebase'i başlat
