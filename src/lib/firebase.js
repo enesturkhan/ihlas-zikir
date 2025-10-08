@@ -16,18 +16,7 @@ const firebaseConfig = {
 };
 
 // Firebase'i başlat
-let app;
-let analytics;
-
-if (typeof window !== 'undefined') {
-  app = initializeApp(firebaseConfig);
-  // Analytics sadece client-side'da çalışır
-  if (firebaseConfig.measurementId) {
-    analytics = getAnalytics(app);
-  }
-} else {
-  app = initializeApp(firebaseConfig);
-}
+const app = initializeApp(firebaseConfig);
 
 // Authentication servisi
 export const auth = getAuth(app);
@@ -35,8 +24,10 @@ export const auth = getAuth(app);
 // Firestore database servisi
 export const db = getFirestore(app);
 
-// Analytics (opsiyonel)
-export { analytics };
+// Analytics (opsiyonel) - sadece client-side'da
+export const analytics = typeof window !== 'undefined' && firebaseConfig.measurementId 
+  ? getAnalytics(app) 
+  : null;
 
 export default app;
 
