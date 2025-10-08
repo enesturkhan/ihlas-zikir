@@ -1,3 +1,4 @@
+// cSpell:ignore firestore
 // Firebase yapılandırması ve başlatma
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
