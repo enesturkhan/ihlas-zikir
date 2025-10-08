@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import CountdownCounter from '@/components/CountdownCounter';
 import ResetModal from '@/components/ResetModal';
 import Statistics from '@/components/Statistics';
@@ -10,6 +10,35 @@ const STORAGE_KEY = 'ihlas-zikir-count';
 
 export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentCount, setCurrentCount] = useState(INITIAL_COUNT);
+
+  // Load count from localStorage on mount (client-side only)
+  useEffect(() => {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      const count = parseInt(stored, 10);
+      if (!isNaN(count)) {
+        setCurrentCount(count);
+      }
+    }
+  }, []);
+
+  // Listen for storage changes from CountdownCounter
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        const count = parseInt(stored, 10);
+        if (!isNaN(count)) {
+          setCurrentCount(count);
+        }
+      }
+    };
+
+    // Poll localStorage every second to sync with CountdownCounter
+    const interval = setInterval(handleStorageChange, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleReset = () => {
     localStorage.setItem(STORAGE_KEY, INITIAL_COUNT.toString());
@@ -17,20 +46,7 @@ export default function Home() {
     window.location.reload();
   };
 
-  const getCurrentCount = () => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const count = parseInt(stored, 10);
-        if (!isNaN(count)) {
-          return count;
-        }
-      }
-    }
-    return INITIAL_COUNT;
-  };
-
-  const progress = INITIAL_COUNT - getCurrentCount();
+  const progress = INITIAL_COUNT - currentCount;
 
   return (
     <>
@@ -118,7 +134,7 @@ export default function Home() {
         />
 
         {/* Statistics Panel */}
-        <Statistics count={getCurrentCount()} initialCount={INITIAL_COUNT} />
+        <Statistics count={currentCount} initialCount={INITIAL_COUNT} />
       </div>
     </>
   );
