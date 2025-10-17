@@ -2,22 +2,39 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import CountdownCounter from '@/components/CountdownCounter';
 import ResetModal from '@/components/ResetModal';
 import Statistics from '@/components/Statistics';
+import LogoutButton from '@/components/LogoutButton';
+import ProtectedRoute from '@/components/ProtectedRoute';
+import { useAuth } from '@/contexts/AuthContext';
 import { db } from '@/lib/firebase';
 import { doc, setDoc, onSnapshot } from 'firebase/firestore';
 
 const INITIAL_COUNT = 40000;
-const COUNTER_DOC_ID = 'global-counter';
 
 export default function Home() {
+  const { user, isAdmin } = useAuth();
+  const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentCount, setCurrentCount] = useState(INITIAL_COUNT);
 
+  // Admin ise admin paneline yönlendir
+  useEffect(() => {
+    if (user && isAdmin) {
+      router.push('/admin');
+    }
+  }, [user, isAdmin, router]);
+
+  // User-specific counter ID
+  const counterDocId = user ? `user-${user.uid}-counter` : null;
+
   // Sync with Firestore
   useEffect(() => {
-    const counterRef = doc(db, 'counters', COUNTER_DOC_ID);
+    if (!counterDocId) return;
+
+    const counterRef = doc(db, 'counters', counterDocId);
     
     const unsubscribe = onSnapshot(counterRef, (doc) => {
       if (doc.exists()) {
@@ -26,11 +43,13 @@ export default function Home() {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [counterDocId]);
 
   const handleReset = async () => {
+    if (!counterDocId) return;
+
     try {
-      const counterRef = doc(db, 'counters', COUNTER_DOC_ID);
+      const counterRef = doc(db, 'counters', counterDocId);
       await setDoc(counterRef, { count: INITIAL_COUNT });
       setIsModalOpen(false);
     } catch (error) {
@@ -41,7 +60,7 @@ export default function Home() {
   const progress = INITIAL_COUNT - currentCount;
 
   return (
-    <>
+    <ProtectedRoute>
       {/* Main Container */}
       <div className="min-h-screen flex flex-col items-center justify-center p-4 overflow-hidden relative" style={{ background: '#121212' }}>
         {/* Background decorative elements - Neon glow effects */}
@@ -50,8 +69,21 @@ export default function Home() {
           <div className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full blur-3xl opacity-20" style={{ background: 'radial-gradient(circle, #F27121, transparent)' }} />
         </div>
 
+        {/* Logout Button */}
+        <LogoutButton />
+
         {/* Header */}
         <div className="text-center mb-5 relative z-10">
+          {/* Welcome Message - Above Title */}
+          {user && (
+            <div className="mb-4">
+              <p className="text-sm md:text-base font-medium text-transparent bg-clip-text" 
+                 style={{ backgroundImage: 'linear-gradient(45deg, #E94057, #F27121)', WebkitBackgroundClip: 'text', backgroundClip: 'text' }}>
+                Hoşgeldin, <span className="font-bold">{user.displayName}</span>
+              </p>
+            </div>
+          )}
+          
           <h1 className="text-5xl md:text-6xl font-bold text-transparent bg-clip-text mb-4" style={{ backgroundImage: 'linear-gradient(45deg, #E94057, #F27121)', WebkitBackgroundClip: 'text', backgroundClip: 'text' }}>
             İhlas Zikir
           </h1>
@@ -62,10 +94,13 @@ export default function Home() {
 
         {/* Counter */}
         <div className="relative z-10">
-          <CountdownCounter 
-            onHover={() => {}} 
-            onClick={() => {}}
-          />
+          {user && (
+            <CountdownCounter 
+              userId={user.uid}
+              onHover={() => {}} 
+              onClick={() => {}}
+            />
+          )}
         </div>
 
         {/* Instructions */}
@@ -79,10 +114,10 @@ export default function Home() {
           </p>
         </div>
 
-        {/* Reset Button */}
+        {/* Reset Button - Bottom Right */}
         <button
           onClick={() => setIsModalOpen(true)}
-          className="fixed top-1 md:bottom-8 md:top-auto right-8 px-4 py-2 md:px-6 md:py-3 rounded-full font-medium transition-all duration-300 backdrop-blur-sm shadow-lg hover:scale-105 active:scale-95 z-20"
+          className="fixed bottom-6 right-6 w-14 h-14 md:w-16 md:h-16 rounded-full font-medium transition-all duration-300 backdrop-blur-sm shadow-lg hover:scale-110 active:scale-95 z-20 flex items-center justify-center"
           style={{ 
             backgroundColor: 'rgba(18, 18, 18, 0.8)', 
             border: '1px solid rgba(234, 234, 234, 0.2)',
@@ -98,23 +133,21 @@ export default function Home() {
             e.currentTarget.style.borderColor = 'rgba(234, 234, 234, 0.2)';
             e.currentTarget.style.boxShadow = '';
           }}
+          title="Sıfırla"
         >
-          <div className="flex items-center gap-2">
-            <svg
-              className="w-3 h-3 md:w-5 md:h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-              />
-            </svg>
-            <span className="hidden sm:inline">Sıfırla</span>
-          </div>
+          <svg
+            className="w-6 h-6 md:w-7 md:h-7"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+            />
+          </svg>
         </button>
 
         {/* Reset Modal */}
@@ -128,6 +161,6 @@ export default function Home() {
         {/* Statistics Panel */}
         <Statistics count={currentCount} initialCount={INITIAL_COUNT} />
       </div>
-    </>
+    </ProtectedRoute>
   );
 }

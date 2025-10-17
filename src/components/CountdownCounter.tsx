@@ -6,22 +6,25 @@ import { db } from '@/lib/firebase';
 import { doc, getDoc, setDoc, onSnapshot, updateDoc, increment } from 'firebase/firestore';
 
 interface CountdownCounterProps {
+  userId: string;
   onHover: (hovering: boolean) => void;
   onClick: () => void;
 }
 
 const INITIAL_COUNT = 40000;
-const COUNTER_DOC_ID = 'global-counter';
 
-export default function CountdownCounter({ onHover, onClick }: CountdownCounterProps) {
+export default function CountdownCounter({ userId, onHover, onClick }: CountdownCounterProps) {
   const [count, setCount] = useState<number>(INITIAL_COUNT);
   const [isAnimating, setIsAnimating] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
+  // User-specific counter ID
+  const counterDocId = `user-${userId}-counter`;
+
   // Initialize and sync with Firestore
   useEffect(() => {
-    const counterRef = doc(db, 'counters', COUNTER_DOC_ID);
+    const counterRef = doc(db, 'counters', counterDocId);
 
     // Initialize counter if it doesn't exist
     const initializeCounter = async () => {
@@ -47,7 +50,7 @@ export default function CountdownCounter({ onHover, onClick }: CountdownCounterP
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [counterDocId]);
 
   const handleClick = useCallback(async () => {
     if (count > 0 && !isLoading) {
@@ -60,7 +63,7 @@ export default function CountdownCounter({ onHover, onClick }: CountdownCounterP
       }
 
       try {
-        const counterRef = doc(db, 'counters', COUNTER_DOC_ID);
+        const counterRef = doc(db, 'counters', counterDocId);
         await updateDoc(counterRef, {
           count: increment(-1)
         });
@@ -79,7 +82,7 @@ export default function CountdownCounter({ onHover, onClick }: CountdownCounterP
 
       setTimeout(() => setIsAnimating(false), 300);
     }
-  }, [count, onClick, isLoading]);
+  }, [count, onClick, isLoading, counterDocId]);
 
   // Keyboard support (spacebar)
   useEffect(() => {

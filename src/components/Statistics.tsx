@@ -64,7 +64,7 @@ export default function Statistics({ count, initialCount }: StatisticsProps) {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed top-1 md:bottom-8 md:top-auto left-8 p-2 md:p-3 rounded-full font-medium transition-all duration-300 backdrop-blur-sm shadow-lg hover:scale-105 active:scale-95 z-20"
+        className="fixed bottom-6 left-6 w-14 h-14 md:w-16 md:h-16 rounded-full font-medium transition-all duration-300 backdrop-blur-sm shadow-lg hover:scale-110 active:scale-95 z-20 flex items-center justify-center"
         style={{
           backgroundColor: 'rgba(18, 18, 18, 0.8)',
           border: '1px solid rgba(234, 234, 234, 0.2)',
@@ -80,9 +80,10 @@ export default function Statistics({ count, initialCount }: StatisticsProps) {
           e.currentTarget.style.borderColor = 'rgba(234, 234, 234, 0.2)';
           e.currentTarget.style.boxShadow = '';
         }}
+        title="İstatistikler"
       >
         <svg
-          className="w-4 h-4 md:w-6 md:h-6"
+          className="w-6 h-6 md:w-7 md:h-7"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -107,7 +108,7 @@ export default function Statistics({ count, initialCount }: StatisticsProps) {
       />
       
       {/* Panel */}
-      <div className="fixed top-8 md:bottom-8 md:top-auto left-8 backdrop-blur-md rounded-2xl p-6 shadow-2xl z-20 w-72" style={{
+      <div className="fixed bottom-24 left-6 backdrop-blur-md rounded-2xl p-4 md:p-6 shadow-2xl z-20 w-72 md:w-80" style={{
         background: 'rgba(18, 18, 18, 0.95)',
         border: '1px solid rgba(234, 234, 234, 0.2)'
       }}>
