@@ -27,6 +27,13 @@ export const metadata: Metadata = {
   keywords: ["zikir", "tesbih", "ihlas", "islam", "sayaç", "counter"],
   authors: [{ name: "İhlas Zikir" }],
   manifest: "/manifest.json",
+  icons: {
+    icon: [
+      { url: '/icon.png', sizes: 'any', type: 'image/png' },
+      { url: '/favicon.ico', sizes: 'any', type: 'image/x-icon' },
+    ],
+    apple: '/icon.png',
+  },
 };
 
 export default function RootLayout({
