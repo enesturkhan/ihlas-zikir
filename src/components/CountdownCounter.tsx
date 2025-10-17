@@ -173,7 +173,7 @@ export default function CountdownCounter({ userId, onHover, onClick }: Countdown
             <div className="text-center">
               <div className="text-6xl mb-4">🎉</div>
               <div className="text-3xl font-bold text-transparent bg-clip-text" style={{ backgroundImage: 'linear-gradient(45deg, #E94057, #F27121)', WebkitBackgroundClip: 'text', backgroundClip: 'text' }}>
-                Tamamlandı!
+                Tamamlandı!!
               </div>
             </div>
           ) : (
