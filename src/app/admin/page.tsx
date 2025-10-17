@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { collection, getDocs, doc, deleteDoc, updateDoc, setDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, updateDoc, setDoc } from 'firebase/firestore';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { db, secondaryAuth } from '@/lib/firebase';
 import { useAuth } from '@/contexts/AuthContext';
@@ -14,6 +14,7 @@ interface UserData {
   displayName: string;
   role: 'admin' | 'user';
   createdAt: Date;
+  deleted?: boolean;
 }
 
 export default function AdminPage() {
@@ -39,12 +40,18 @@ export default function AdminPage() {
     try {
       const usersSnapshot = await getDocs(collection(db, 'users'));
       const usersData = usersSnapshot.docs
-        .map(doc => ({
-          uid: doc.id,
-          ...doc.data(),
-          createdAt: doc.data().createdAt?.toDate() || new Date(),
-        }))
-        .filter(user => !user.deleted) as UserData[];  // Sadece aktif kullanıcılar
+        .map(doc => {
+          const data = doc.data();
+          return {
+            uid: doc.id,
+            email: data.email,
+            displayName: data.displayName,
+            role: data.role,
+            deleted: data.deleted,
+            createdAt: data.createdAt?.toDate() || new Date(),
+          } as UserData;
+        })
+        .filter(user => !user.deleted);  // Sadece aktif kullanıcılar
       setUsers(usersData);
       setLoading(false);
     } catch (err) {
@@ -96,7 +103,7 @@ export default function AdminPage() {
       } else {
         setModalError('');
       }
-    } catch (err) {
+    } catch {
       setModalError('');
     } finally {
       setEmailCheckLoading(false);
