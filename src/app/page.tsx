@@ -20,6 +20,12 @@ export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentCount, setCurrentCount] = useState(INITIAL_COUNT);
 
+  const triggerHaptic = (pattern: number | number[] = 10) => {
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+      navigator.vibrate(pattern);
+    }
+  };
+
   // Admin ise admin paneline yönlendir
   useEffect(() => {
     if (user && isAdmin) {
@@ -116,7 +122,10 @@ export default function Home() {
 
         {/* Reset Button - Bottom Right */}
         <button
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => {
+            triggerHaptic();
+            setIsModalOpen(true);
+          }}
           className="fixed bottom-6 right-6 w-14 h-14 md:w-16 md:h-16 rounded-full font-medium transition-all duration-300 backdrop-blur-sm shadow-lg hover:scale-110 active:scale-95 z-20 flex items-center justify-center"
           style={{ 
             backgroundColor: 'rgba(18, 18, 18, 0.8)', 
