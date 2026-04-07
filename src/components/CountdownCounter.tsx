@@ -19,6 +19,14 @@ export default function CountdownCounter({ userId, onHover, onClick }: Countdown
   const [showConfetti, setShowConfetti] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
+  const triggerHaptic = useCallback((duration = 40) => {
+    if (typeof navigator === 'undefined' || typeof navigator.vibrate !== 'function') {
+      return;
+    }
+
+    navigator.vibrate(duration);
+  }, []);
+
   // User-specific counter ID
   const counterDocId = `user-${userId}-counter`;
 
@@ -56,11 +64,7 @@ export default function CountdownCounter({ userId, onHover, onClick }: Countdown
     if (count > 0 && !isLoading) {
       setIsAnimating(true);
       onClick();
-
-      // Haptic feedback on mobile
-      if ('vibrate' in navigator) {
-        navigator.vibrate(10);
-      }
+      triggerHaptic();
 
       try {
         const counterRef = doc(db, 'counters', counterDocId);
@@ -71,10 +75,7 @@ export default function CountdownCounter({ userId, onHover, onClick }: Countdown
         // Check if completed
         if (count - 1 === 0) {
           setShowConfetti(true);
-          // Celebration vibration
-          if ('vibrate' in navigator) {
-            navigator.vibrate([100, 50, 100, 50, 200]);
-          }
+          triggerHaptic();
         }
       } catch (error) {
         console.error('Error updating counter:', error);
@@ -82,7 +83,7 @@ export default function CountdownCounter({ userId, onHover, onClick }: Countdown
 
       setTimeout(() => setIsAnimating(false), 300);
     }
-  }, [count, onClick, isLoading, counterDocId]);
+  }, [count, onClick, isLoading, counterDocId, triggerHaptic]);
 
   // Keyboard support (spacebar)
   useEffect(() => {
