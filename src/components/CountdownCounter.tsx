@@ -1,7 +1,7 @@
 // cSpell:ignore firestore
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { db } from '@/lib/firebase';
 import { doc, getDoc, setDoc, onSnapshot, updateDoc, increment } from 'firebase/firestore';
 
@@ -18,6 +18,7 @@ export default function CountdownCounter({ userId, onHover, onClick }: Countdown
   const [isAnimating, setIsAnimating] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // User-specific counter ID
   const counterDocId = `user-${userId}-counter`;
@@ -52,14 +53,17 @@ export default function CountdownCounter({ userId, onHover, onClick }: Countdown
     return () => unsubscribe();
   }, [counterDocId]);
 
+  useEffect(() => {
+    audioRef.current = new Audio('/click.mp3');
+  }, []);
+
   const handleClick = useCallback(async () => {
     if (count > 0 && !isLoading) {
       setIsAnimating(true);
       onClick();
-
-      // Haptic feedback on mobile
-      if ('vibrate' in navigator) {
-        navigator.vibrate(10);
+      if (audioRef.current) {
+        audioRef.current.currentTime = 0;
+        audioRef.current.play().catch(() => {});
       }
 
       try {
@@ -71,10 +75,6 @@ export default function CountdownCounter({ userId, onHover, onClick }: Countdown
         // Check if completed
         if (count - 1 === 0) {
           setShowConfetti(true);
-          // Celebration vibration
-          if ('vibrate' in navigator) {
-            navigator.vibrate([100, 50, 100, 50, 200]);
-          }
         }
       } catch (error) {
         console.error('Error updating counter:', error);

@@ -85,9 +85,7 @@ Danger: #ef4444
 ### 3. Dokunmatik Etkileşim (Mobil)
 - 📱 Tam ekran dokunmatik alan
 - 🎯 Kolay erişim için büyük tıklama hedefi
-- 📳 Haptic feedback (titreşim):
-  - Normal tıklama: 10ms kısa titreşim
-  - Tamamlama: [100, 50, 100, 50, 200] kutlama paterni
+- 🔊 Tıklamada kısa ses geri bildirimi (`/click.mp3`)
 
 ### 4. Animasyonlar
 #### Tıklama Animasyonu
@@ -150,7 +148,7 @@ Desktop: > 1024px
 - ✅ Apple Web App capable
 - ✅ No user-scalable (zoom kapalı)
 - ✅ Tap highlight kapatma
-- ✅ Haptic feedback desteği
+- ✅ Dokunmada ses geri bildirimi desteği
 
 ### 3. PWA Desteği (manifest.json)
 - 📲 Ekrana ekleme özelliği
@@ -162,7 +160,6 @@ Desktop: > 1024px
 - 👆 Minimum 44x44px tıklama hedefi
 - 🚫 Tap delay kaldırma
 - ⚡ FastClick benzeri optimize edilmiş tepki
-- 📳 Native vibration API kullanımı
 
 ---
 
@@ -244,7 +241,6 @@ yolculuğumda devam ediyorum! 🤲
 
 ### 2. Tamamlanma Kutlaması
 - 🎉 Konfeti animasyonu (30 parçacık)
-- 📳 Özel titreşim paterni
 - 🎨 "Tamamlandı!" mesajı
 - ✨ Gradient metin efekti
 
@@ -306,7 +302,7 @@ yolculuğumda devam ediyorum! 🤲
 ### Senaryo 3: Tamamlama
 1. Sayaç 0'a ulaşır
 2. Konfeti animasyonu başlar
-3. Titreşim feedbacki verilir
+3. Tıklama sesi geri bildirimi verilir
 4. "Tamamlandı!" mesajı görünür
 5. İstatistikler tamamlanma durumunu gösterir
 
